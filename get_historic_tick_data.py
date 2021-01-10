@@ -63,8 +63,25 @@ def get_tick_data(code):
     df = df[['체결시간','현재가','거래량']]
     return df[::-1]
 
+command = 'continue'
+codes = []
 
-df_kodex200 =  get_tick_data('069500')
-df_kodexinv =  get_tick_data(114800)
-df_kodex200.to_pickle('historic_data/kodex200_'+today)
-df_kodexinv.to_pickle('historic_data/kodexinv_'+today)
+while command != 'stop':
+    name = input('종목명 :')
+    
+    if name not in name_to_code.keys():
+        print('wrong name')
+        continue
+    else:
+        code = name_to_code[name]
+        codes.append(code)
+        command = input('continue or stop? : ')
+
+print('--- start getting historic tick data ---')
+
+for code in codes:
+    df =  get_tick_data(code)
+    df.to_pickle('historic_data/'+name+'_'+today)
+    print(code,'completed')
+
+print('--- task completed --- ')
