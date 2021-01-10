@@ -36,14 +36,14 @@ for code in etf:
     code_to_name[code] = name
     
     
-############################### 틱 차트 조회 #########################################
+############################### 틱/분 차트 조회 #########################################
 # TR 요청 (연속조회)
 
 def get_tick_data(code):
     dfs = []
     df = kiwoom.block_request("opt10079",
                             종목코드 = code,
-                            틱범위 = 3,
+                            틱범위 = 1,
                             수정주가구분 =1,
                             output="주식틱차트조회",
                             next=0)
@@ -51,7 +51,7 @@ def get_tick_data(code):
     while kiwoom.tr_remained:
         df = kiwoom.block_request("opt10079",
                             종목코드 = code,
-                            틱범위 = 3,
+                            틱범위 = 1,
                             수정주가구분 =1,
                             output="주식틱차트조회",
                             next=2)
@@ -63,10 +63,53 @@ def get_tick_data(code):
     df = df[['체결시간','현재가','거래량']]
     return df[::-1]
 
+def get_min_data(code):
+    dfs = []
+    df = kiwoom.block_request("opt10080",
+                            종목코드 = code,
+                            틱범위 = 1,
+                            수정주가구분 =1,
+                            output="주식틱차트조회",
+                            next=0)
+    dfs.append(df)
+    while kiwoom.tr_remained:
+        df = kiwoom.block_request("opt10080",
+                            종목코드 = code,
+                            틱범위 = 1,
+                            수정주가구분 =1,
+                            output="주식틱차트조회",
+                            next=2)
+        dfs.append(df)
+        time.sleep(1)
+
+
+    df = pd.concat(dfs)
+    df = df[['체결시간','현재가','거래량']]
+    return df[::-1]
+
+
+############################### main #########################################
+
 command = 'continue'
+data = None
 codes = []
 
+
+### input data type ###
+while True:   
+
+    data = input('data type / tick or min ? : ')
+    
+    if data not in ['tick','min'] :
+        print('wrong data type')
+        continue
+    else:
+        break
+
+
+### input code name ###
 while command != 'stop':
+
     name = input('종목명 :')
     
     if name not in name_to_code.keys():
@@ -79,9 +122,16 @@ while command != 'stop':
 
 print('--- start getting historic tick data ---')
 
-for code in codes:
-    df =  get_tick_data(code)
-    df.to_pickle('historic_data/'+code_to_name[code]+'_'+today)
-    print(code_to_name[code],'completed')
+### get data ###
+if data == 'tick':
+    for code in codes:
+        df =  get_tick_data(code)
+        df.to_pickle('historic_data/'+code_to_name[code]+'(T)_'+today)
+        print(code_to_name[code],'completed')
+elif data == 'min':
+    for code in codes:
+        df =  get_min_data(code)
+        df.to_pickle('historic_data/'+code_to_name[code]+'(m)_'+today)
+        print(code_to_name[code],'completed')
 
 print('--- task completed --- ')
