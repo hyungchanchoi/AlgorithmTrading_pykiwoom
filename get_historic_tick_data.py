@@ -81,7 +81,7 @@ print('--- start getting historic tick data ---')
 
 for code in codes:
     df =  get_tick_data(code)
-    df.to_pickle('historic_data/'+name+'_'+today)
-    print(code,'completed')
+    df.to_pickle('historic_data/'+code_to_name[code]+'_'+today)
+    print(code_to_name[code],'completed')
 
 print('--- task completed --- ')
