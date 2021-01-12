@@ -126,12 +126,12 @@ print('--- start getting historic tick data ---')
 if data == 'tick':
     for code in codes:
         df =  get_tick_data(code)
-        df.to_pickle('historic_data/'+code_to_name[code]+'(T)_'+today)
+        df.to_pickle('data analysis/'+code_to_name[code]+'(T)_'+today)
         print(code_to_name[code],'completed')
 elif data == 'min':
     for code in codes:
         df =  get_min_data(code)
-        df.to_pickle('historic_data/'+code_to_name[code]+'(m)_'+today)
+        df.to_pickle('data analysis/'+code_to_name[code]+'(m)_'+today)
         print(code_to_name[code],'completed')
 
 print('--- task completed --- ')
