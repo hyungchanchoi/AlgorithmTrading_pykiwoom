@@ -125,7 +125,7 @@ while command != 'stop':
         codes.append(code)
         command = input('continue or stop? : ')
 
-print('--- start getting historic  data ---')
+print('--- start getting historic data ---')
 
 ### get data ###
 if data == 'tick':
