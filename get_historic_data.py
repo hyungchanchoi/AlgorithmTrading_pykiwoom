@@ -36,7 +36,12 @@ for code in etf:
     code_to_name[code] = name
     
     
-############################### 틱/분 차트 조회 #########################################
+############################### daily 종목 #########################################
+
+daily = ['KODEX 200','KODEX 인버스','KODEX 혁신기술테마액티브','TIGER 200','TIGER 인버스','TIGER AI코리아그로스액티브',
+         'KODEX 삼성그룹','KODEX 삼성그룹밸류']
+
+############################### 틱/분 차트 조회 함수 #########################################
 # TR 요청 (연속조회)
 
 def get_tick_data(code):
@@ -100,7 +105,7 @@ while True:
 
     data = input('data type / tick or min ? : ')
     
-    if data not in ['tick','min'] :
+    if data not in ['tick','min','daily'] :
         print('wrong data type')
         continue
     else:
@@ -120,7 +125,7 @@ while command != 'stop':
         codes.append(code)
         command = input('continue or stop? : ')
 
-print('--- start getting historic tick data ---')
+print('--- start getting historic  data ---')
 
 ### get data ###
 if data == 'tick':
@@ -133,5 +138,12 @@ elif data == 'min':
         df =  get_min_data(code)
         df.to_pickle('data analysis/'+code_to_name[code]+'(m)_'+today)
         print(code_to_name[code],'completed')
+elif data == 'daily':
+    print('--- daily data ---')
+    for name in daily:
+        df1 =  get_min_data(name_to_code[daily])
+        df2 =  get_min_data(name_to_code[daily])
+        df.to_pickle('data analysis/'+name+'(m)_'+today)
+        print(name,'completed')
 
 print('--- task completed --- ')
