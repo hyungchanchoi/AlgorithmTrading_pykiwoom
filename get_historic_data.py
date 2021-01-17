@@ -62,7 +62,7 @@ def get_tick_data(code):
                             next=2)
         dfs.append(df)
         print(df['체결시간'].iloc[0])
-        if int(df['체결시간'].iloc[0])< 20210111:
+        if int(df['체결시간'].iloc[0])< 20210111000000:
             break
         time.sleep(1)
 
