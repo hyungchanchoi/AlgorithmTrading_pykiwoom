@@ -39,7 +39,7 @@ for code in etf:
 ############################### daily 종목 #########################################
 
 daily = ['KODEX 200','KODEX 인버스','KODEX 혁신기술테마액티브','TIGER 200','TIGER 인버스','TIGER AI코리아그로스액티브',
-         'KODEX 삼성그룹','KODEX 삼성그룹밸류']
+         'KODEX 삼성그룹','KODEX 삼성그룹밸류','삼성전자','삼성전자우']
 
 ############################### 틱/분 차트 조회 함수 #########################################
 # TR 요청 (연속조회)
@@ -115,6 +115,9 @@ while True:
 ### input code name ###
 while command != 'stop':
 
+    if data == 'daily':
+        break
+
     name = input('종목명 :')
     
     if name not in name_to_code.keys():
@@ -141,8 +144,7 @@ elif data == 'min':
 elif data == 'daily':
     print('--- daily data ---')
     for name in daily:
-        df1 =  get_min_data(name_to_code[daily])
-        df2 =  get_min_data(name_to_code[daily])
+        df =  get_min_data(name_to_code[name])
         df.to_pickle('data analysis/'+name+'(m)_'+today)
         print(name,'completed')
 
