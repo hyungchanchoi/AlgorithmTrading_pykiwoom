@@ -48,7 +48,7 @@ def get_tick_data(code):
     dfs = []
     df = kiwoom.block_request("opt10079",
                             종목코드 = code,
-                            틱범위 = 1,
+                            틱범위 = 5,
                             수정주가구분 =1,
                             output="주식틱차트조회",
                             next=0)
@@ -56,13 +56,15 @@ def get_tick_data(code):
     while kiwoom.tr_remained:
         df = kiwoom.block_request("opt10079",
                             종목코드 = code,
-                            틱범위 = 1,
+                            틱범위 = 5,
                             수정주가구분 =1,
                             output="주식틱차트조회",
                             next=2)
         dfs.append(df)
+        print(df['체결시간'].iloc[0])
+        if int(df['체결시간'].iloc[0])< 20210111:
+            break
         time.sleep(1)
-
 
     df = pd.concat(dfs)
     df = df[['체결시간','현재가','거래량']]
@@ -134,18 +136,18 @@ print('--- start getting historic data ---')
 if data == 'tick':
     for code in codes:
         df =  get_tick_data(code)
-        df.to_pickle('data analysis/'+code_to_name[code]+'(T)_'+today)
+        df.to_pickle('datas/'+code_to_name[code]+'(T)_'+today)
         print(code_to_name[code],'completed')
 elif data == 'min':
     for code in codes:
         df =  get_min_data(code)
-        df.to_pickle('data analysis/'+code_to_name[code]+'(m)_'+today)
+        df.to_pickle('datas/'+code_to_name[code]+'(m)_'+today)
         print(code_to_name[code],'completed')
 elif data == 'daily':
     print('--- daily data ---')
     for name in daily:
         df =  get_min_data(name_to_code[name])
-        df.to_pickle('data analysis/'+name+'(m)_'+today)
+        df.to_pickle('datas/'+name+'(m)_'+today)
         print(name,'completed')
 
 print('--- task completed --- ')
