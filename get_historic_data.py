@@ -94,6 +94,30 @@ def get_min_data(code):
     df = df[['체결시간','현재가','거래량']]
     return df[::-1]
 
+def get_day_data(code):
+    dfs = []
+    df = kiwoom.block_request("opt10081",
+                            종목코드 = code,
+                            틱범위 = 1,
+                            수정주가구분 =1,
+                            output="주식일봉차트조회",
+                            next=0)
+    dfs.append(df)
+    while kiwoom.tr_remained:
+        df = kiwoom.block_request("opt10081",
+                            종목코드 = code,
+                            틱범위 = 1,
+                            수정주가구분 =1,
+                            output="주식일봉차트조회",
+                            next=2)
+        dfs.append(df)
+        time.sleep(1)
+
+
+    df = pd.concat(dfs)
+    df = df[['일자','현재가','거래량']]
+    return df[::-1]
+
 
 ############################### main #########################################
 
@@ -105,9 +129,9 @@ codes = []
 ### input data type ###
 while True:   
 
-    data = input('data type / tick or min ? : ')
+    data = input('data type / tick or min or day? : ')
     
-    if data not in ['tick','min','daily'] :
+    if data not in ['tick','min','day','daily'] :
         print('wrong data type')
         continue
     else:
@@ -142,6 +166,11 @@ elif data == 'min':
     for code in codes:
         df =  get_min_data(code)
         df.to_pickle('datas/'+code_to_name[code]+'(m)_'+today)
+        print(code_to_name[code],'completed')
+elif data == 'day':
+    for code in codes:
+        df =  get_day_data(code)
+        df.to_pickle('datas/'+code_to_name[code]+'(d)_'+today)
         print(code_to_name[code],'completed')
 elif data == 'daily':
     print('--- daily data ---')
