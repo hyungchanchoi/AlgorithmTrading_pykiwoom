@@ -39,7 +39,8 @@ for code in kosdaq:
 def one_day(temp,test_day):        
     begin = np.where( np.array(temp['체결시간']) > str(test_day))[0][0]
     end = np.where( str(test_day+1) > np.array(temp['체결시간']) )[0][-1]
-    return temp.iloc[begin-1:end]
+    df = temp.iloc[begin-1:end]
+    return df
 
 
 def get_min_data(low_lists,code):
@@ -51,6 +52,7 @@ def get_min_data(low_lists,code):
                             output="주식분봉차트조회",
                             next=0)
     dfs.append(df)    
+    i = 0
     while kiwoom.tr_remained:
         df = kiwoom.block_request("opt10080",
                             종목코드 = code,
@@ -61,25 +63,30 @@ def get_min_data(low_lists,code):
         dfs.append(df)
         print(df['체결시간'].iloc[0][:8])
         time.sleep(3.7)
+        i +=1
+        if i ==1:
+            break
     df = pd.concat(dfs)
     df = df[['체결시간','현재가']]
     df = df[::-1]
 
-    for date in range(int(df['체결시간'].iloc[0][:8]),int(df['체결시간'].iloc[-1][:8])):
+    for date in range(int(df['체결시간'].iloc[0][:8]),int(df['체결시간'].iloc[-1][:8])+1):
+        print(date)
         if 20201231 < date < 20210101:
             continue
         temps = pd.DataFrame()
         temps = one_day(df,date)  
-        try: 
-            temps['현재가'] = abs(pd.to_numeric(temps['현재가']))
-            temps['등락률'] = np.log(temps['현재가']/temps['현재가'].iloc[0])
-            if np.where(np.array(temps['등락률']) < -0.29)[0] > 0 :
-                low_lists[code_to_name[code],str(date)] = temps
-                print(code_to_name[code],str(date))
-        except:
-            pass
 
-        return low_lists
+        if len(temps) != 0:
+            temps['현재가'] = abs(pd.to_numeric(temps['현재가']))
+            temps['등락률'] = (temps['현재가'] - temps['현재가'].iloc[0]) / temps['현재가'].iloc[0]
+        else:
+            continue
+
+        if len(np.where(np.array(temps['등락률']) < -0.29)[0]) > 0 :
+            low_lists.append((code_to_name[code],str(date)))
+            print(code_to_name[code],str(date))
+
 
 
 ############################### main #########################################
@@ -90,17 +97,17 @@ print('--- start getting historic data ---')
 ### get data ###
 if __name__ == '__main__':
 
-    low_lists = {}
+    low_lists = []
     i = 1
-    
+
     for code in kosdaq:
         print(code_to_name[code],'start','(',i,'/',len(kosdaq),')')
 
-        low_lists = get_min_data(low_lists,code)
+        get_min_data(low_lists,code)
 
         print(code_to_name[code],'completed','(',i,'/',len(kosdaq),')')
         i += 1
 
-    low_lists = pd.DataFrame(low_lists)
-    low_lists.to_pickle('lows/'+today)
+    print(low_lists)
+
     print('--- task completed --- ')
