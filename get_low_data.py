@@ -91,13 +91,15 @@ print('--- start getting historic data ---')
 if __name__ == '__main__':
 
     low_lists = {}
-
+    i = 1
+    
     for code in kosdaq:
-        print(code_to_name[code],'start')
+        print(code_to_name[code],'start','(',i,'/',len(kosdaq),')')
 
         low_lists = get_min_data(low_lists,code)
 
-        print(code_to_name[code],'completed')
+        print(code_to_name[code],'completed','(',i,'/',len(kosdaq),')')
+        i += 1
 
     low_lists = pd.DataFrame(low_lists)
     low_lists.to_pickle('lows/'+today)
