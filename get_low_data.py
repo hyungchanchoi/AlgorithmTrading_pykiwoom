@@ -75,6 +75,7 @@ def get_min_data(low_lists,code):
             temps['등락률'] = np.log(temps['현재가']/temps['현재가'].iloc[0])
             if np.where(np.array(temps['등락률']) < -0.29)[0] > 0 :
                 low_lists[code_to_name[code],str(date)] = temps
+                print(code_to_name[code],str(date))
         except:
             pass
 
