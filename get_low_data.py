@@ -35,13 +35,14 @@ for code in kosdaq:
 ############################### 전 종목 분 차트 조회 함수 #########################################
 # TR 요청 (연속조회)
 
+
 def one_day(temp,test_day):        
     begin = np.where( np.array(temp['체결시간']) > str(test_day))[0][0]
     end = np.where( str(test_day+1) > np.array(temp['체결시간']) )[0][-1]
     return temp.iloc[begin-1:end]
 
 
-def get_min_data(code):
+def get_min_data(low_lists,code):
     dfs = []
     df = kiwoom.block_request("opt10080",
                             종목코드 = code,
@@ -50,7 +51,6 @@ def get_min_data(code):
                             output="주식분봉차트조회",
                             next=0)
     dfs.append(df)    
-    i = 0
     while kiwoom.tr_remained:
         df = kiwoom.block_request("opt10080",
                             종목코드 = code,
@@ -60,11 +60,7 @@ def get_min_data(code):
                             next=2)
         dfs.append(df)
         print(df['체결시간'].iloc[0][:8])
-        time.sleep(1)
-        i += 1
-        if i == 1:
-            break
-    
+        time.sleep(3.7)
     df = pd.concat(dfs)
     df = df[['체결시간','현재가']]
     df = df[::-1]
@@ -78,12 +74,11 @@ def get_min_data(code):
             temps['현재가'] = abs(pd.to_numeric(temps['현재가']))
             temps['등락률'] = np.log(temps['현재가']/temps['현재가'].iloc[0])
             if np.where(np.array(temps['등락률']) < -0.29)[0] > 0 :
-                temp[str(date)] = temps
+                low_lists[code_to_name[code],str(date)] = temps
         except:
             pass
 
-
-    return temp
+        return low_lists
 
 
 ############################### main #########################################
@@ -92,12 +87,17 @@ def get_min_data(code):
 print('--- start getting historic data ---')
 
 ### get data ###
+if __name__ == '__main__':
 
-for code in ['000660']:
-    print(code_to_name[code],'start')
-    df =  get_min_data(code)
-    df.to_pickle('datas/'+code_to_name[code]+'(m)_'+today)
-    print(code_to_name[code],'completed')
+    low_lists = {}
 
+    for code in kosdaq:
+        print(code_to_name[code],'start')
 
-print('--- task completed --- ')
+        low_lists = get_min_data(low_lists,code)
+
+        print(code_to_name[code],'completed')
+
+    low_lists = pd.DataFrame(low_lists)
+    low_lists.to_pickle('lows/'+today)
+    print('--- task completed --- ')
